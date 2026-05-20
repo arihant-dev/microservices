@@ -1,0 +1,200 @@
+services:
+  virtual-facility:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=virtual-facility
+    environment:
+      - POSTGRES_HOST=virtual-facility-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=virtual-facility
+      - NODE_ENV=development
+      - WORKFLOW_SERVICE_URL=http://workflow-services:3000
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./apps/virtual-facility:/app/apps/virtual-facility
+    depends_on:
+      - virtual-facility-db
+      - nats
+    ports:
+      - "3001:3000"
+
+  virtual-facility-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=virtual-facility
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  workflow-services:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=workflow-services
+    environment:
+      - POSTGRES_HOST=workflow-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflows
+      - NODE_ENV=development
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./apps/workflow-services:/app/apps/workflow-services
+    depends_on:
+      - workflow-db
+      - nats
+
+  workflow-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflows
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - virtual-facility-db
+  
+  nats:
+    image: nats:2.7-alpine
+
+  workflows-classifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=workflows-classifier
+    environment:
+      - POSTGRES_HOST=workflows-classifier-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflows-classifier
+      - NODE_ENV=development
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./apps/workflows-classifier:/app/apps/workflows-classifier
+    depends_on:
+      - workflows-classifier-db
+      - nats
+    ports:
+      - "3002:3002"
+
+  workflows-classifier-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflows-classifier
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  workflows-notification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=workflows-notification
+    environment:
+      - POSTGRES_HOST=workflows-notification-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflows-notification
+      - NODE_ENV=development
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./apps/workflows-notification:/app/apps/workflows-notification
+    depends_on:
+      - workflows-notification-db
+      - nats
+    ports:
+      - "3003:3003"
+
+  workflows-notification-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workflows-notification
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  alarms-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=alarms-service
+    environment:
+      - NODE_ENV=development
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./apps/alarms-service:/app/apps/alarms-service
+    depends_on:
+      - nats
+    ports:
+      - "3004:3004"
+
+  alarms-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=alarms-generator
+    environment:
+      - NODE_ENV=development
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ./libs:/app/libs
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./apps/alarms-generator:/app/apps/alarms-generator
+    depends_on:
+      - nats
+    ports:
+      - "3005:3005"
+  
+  

@@ -4,8 +4,7 @@
   "sourceRoot": "apps/virtual-facility/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": false,
-    "tsConfigPath": "apps/virtual-facility/tsconfig.app.json"
+    "webpack": false
   },
   "monorepo": true,
   "root": "apps/virtual-facility",

@@ -3,7 +3,9 @@ import { WorkflowsNotificationService } from './workflows-notification.service';
 
 @Controller()
 export class WorkflowsNotificationController {
-  constructor(private readonly workflowsNotificationService: WorkflowsNotificationService) {}
+  constructor(
+    private readonly workflowsNotificationService: WorkflowsNotificationService,
+  ) {}
 
   @Get()
   getHello(): string {

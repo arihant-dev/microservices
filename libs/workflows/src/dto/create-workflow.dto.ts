@@ -1,9 +1,9 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateWorkflowDto {
-    @IsString()
-    name?: string;
+  @IsString()
+  name?: string;
 
-    @IsNumber()
-    buildingId!: number;
+  @IsNumber()
+  buildingId!: number;
 }

@@ -11,7 +11,9 @@ describe('WorkflowsNotificationController', () => {
       providers: [WorkflowsNotificationService],
     }).compile();
 
-    workflowsNotificationController = app.get<WorkflowsNotificationController>(WorkflowsNotificationController);
+    workflowsNotificationController = app.get<WorkflowsNotificationController>(
+      WorkflowsNotificationController,
+    );
   });
 
   describe('root', () => {

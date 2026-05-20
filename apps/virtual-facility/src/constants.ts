@@ -1,1 +1,1 @@
-export const WORKFLOWS_SERVICE = Symbol('workflows-service');
+export const WORKFLOW_QUEUE_CLIENT = Symbol('workflow-queue-client');

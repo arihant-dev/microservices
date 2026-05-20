@@ -1,20 +1,48 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Building } from './entities/building.entity';
-import { Repository } from 'typeorm';
-import { WORKFLOWS_SERVICE } from '../constants';
-import { ClientProxy } from '@nestjs/microservices/client/client-proxy';
-import { lastValueFrom } from 'rxjs';
+import { DataSource, Repository } from 'typeorm';
+import { randomUUID } from 'crypto';
+import { WorkflowCreateEvent, WORKFLOW_CREATE_EVENT } from '@app/workflows';
+import { OutboxEvent } from '../outbox/entities/outbox-event.entity';
+import { OutboxService } from '../outbox/outbox.service';
 
 @Injectable()
 export class BuildingsService {
-  constructor(@InjectRepository(Building) private buildingRepository: Repository<Building>, @Inject(WORKFLOWS_SERVICE) private readonly workflowsService: ClientProxy) {}
+  constructor(
+    @InjectRepository(Building)
+    private buildingRepository: Repository<Building>,
+    private dataSource: DataSource,
+    private readonly outboxService: OutboxService,
+  ) {}
   async create(createBuildingDto: CreateBuildingDto) {
-    const building = this.buildingRepository.create(createBuildingDto);
-    const newBuilding = await this.buildingRepository.save(building);
-    await this.createWorkflow(newBuilding.id);
+    const newBuilding = await this.dataSource.transaction(async (manager) => {
+      const buildingRepo = manager.getRepository(Building);
+      const outboxRepo = manager.getRepository(OutboxEvent);
+      const building = buildingRepo.create(createBuildingDto);
+      const savedBuilding = await buildingRepo.save(building);
+      const eventId = randomUUID();
+      const payload: WorkflowCreateEvent = {
+        eventId,
+        buildingId: savedBuilding.id,
+        name: `Workflow for Building ${savedBuilding.id}`,
+        occurredAt: new Date().toISOString(),
+      };
+      const outboxEvent = outboxRepo.create({
+        id: eventId,
+        aggregateType: 'building',
+        aggregateId: savedBuilding.id,
+        eventType: WORKFLOW_CREATE_EVENT,
+        payload,
+        status: 'pending',
+        nextRetryAt: new Date(),
+      });
+      await outboxRepo.save(outboxEvent);
+      return savedBuilding;
+    });
+    await this.outboxService.dispatchPending();
     return newBuilding;
   }
 
@@ -31,7 +59,10 @@ export class BuildingsService {
   }
 
   async update(id: number, updateBuildingDto: UpdateBuildingDto) {
-    const building = await this.buildingRepository.preload({ id, ...updateBuildingDto });
+    const building = await this.buildingRepository.preload({
+      id,
+      ...updateBuildingDto,
+    });
     if (!building) {
       throw new Error(`Building with id ${id} not found`);
     }
@@ -44,14 +75,5 @@ export class BuildingsService {
       throw new Error(`Building with id ${id} not found`);
     }
     return this.buildingRepository.remove(building);
-  }
-
-  async createWorkflow(id: number) {
-    console.log('Creating workflow for building with id:', id);
-    const newWorkflow = await lastValueFrom(this.workflowsService.send('workflows.create', { buildingId: id, name: `Workflow for Building ${id}` } as CreateBuildingDto));
-
-    // const newWorkflow = await response.json();
-    console.log('New workflow created:', newWorkflow);
-    return newWorkflow;
   }
 }

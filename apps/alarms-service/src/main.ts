@@ -11,7 +11,7 @@ async function bootstrap() {
       servers: [process.env.NATS_URL || 'nats://localhost:4222'],
       queue: 'alarms-service',
     },
-  },{inheritAppConfig: true});
+  });
 
   await app.startAllMicroservices();
   await app.listen(process.env.port ?? 3000);

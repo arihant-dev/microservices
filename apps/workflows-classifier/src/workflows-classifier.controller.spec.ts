@@ -11,7 +11,9 @@ describe('WorkflowsClassifierController', () => {
       providers: [WorkflowsClassifierService],
     }).compile();
 
-    workflowsClassifierController = app.get<WorkflowsClassifierController>(WorkflowsClassifierController);
+    workflowsClassifierController = app.get<WorkflowsClassifierController>(
+      WorkflowsClassifierController,
+    );
   });
 
   describe('root', () => {

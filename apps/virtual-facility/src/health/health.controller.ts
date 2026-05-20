@@ -4,14 +4,14 @@ import { HealthCheckService } from '@nestjs/terminus/dist/health-check/health-ch
 
 @Controller('health')
 export class HealthController {
-    constructor (
-        private readonly health: HealthCheckService,
-        private readonly db: TypeOrmHealthIndicator,
-    ){}
+  constructor(
+    private readonly health: HealthCheckService,
+    private readonly db: TypeOrmHealthIndicator,
+  ) {}
 
-    @Get()
-    @HealthCheck()
-    isHealthy(){
-        return this.health.check([() => this.db.pingCheck('database')]);
-    }
+  @Get()
+  @HealthCheck()
+  isHealthy() {
+    return this.health.check([() => this.db.pingCheck('database')]);
+  }
 }

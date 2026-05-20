@@ -6,7 +6,7 @@ import { Interval } from '@nestjs/schedule';
 export class AlarmsGeneratorService {
   constructor(
     @Inject('ALARMS_SERVICE') private readonly alarmsServiceClient: ClientProxy,
-  ){}
+  ) {}
 
   @Interval(10000)
   generateAlarms() {

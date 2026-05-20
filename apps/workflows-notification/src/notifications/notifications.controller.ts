@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -14,13 +22,21 @@ export class NotificationsController {
   }
 
   @Post('notify/:workflowId')
-  async notify(@Param('workflowId') workflowId: string, @Body() body: { message: string }) {
+  async notify(
+    @Param('workflowId') workflowId: string,
+    @Body() body: { message: string },
+  ) {
     return this.notificationsService.notifyWorkflow(+workflowId, body.message);
   }
 
   @EventPattern('workflows.notification')
-  async handleNotification(@Payload() data: { workflowId: number; message: string }) {
-    return this.notificationsService.notifyWorkflow(data.workflowId, data.message);
+  async handleNotification(
+    @Payload() data: { workflowId: number; message: string },
+  ) {
+    return this.notificationsService.notifyWorkflow(
+      data.workflowId,
+      data.message,
+    );
   }
 
   @Get()
@@ -34,7 +50,10 @@ export class NotificationsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateNotificationDto: UpdateNotificationDto,
+  ) {
     return this.notificationsService.update(+id, updateNotificationDto);
   }
 

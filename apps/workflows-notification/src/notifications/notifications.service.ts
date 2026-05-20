@@ -9,17 +9,26 @@ import { Notification } from './entities/notification.entity';
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(@InjectRepository(Notification) private notificationRepository: Repository<Notification>) {}
+  constructor(
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
+  ) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
-    const notification = this.notificationRepository.create(createNotificationDto);
-    this.logger.debug(`Creating notification for workflowId: ${createNotificationDto.workflowId} with message: ${createNotificationDto.message}`);
+    const notification = this.notificationRepository.create(
+      createNotificationDto,
+    );
+    this.logger.debug(
+      `Creating notification for workflowId: ${createNotificationDto.workflowId} with message: ${createNotificationDto.message}`,
+    );
     return this.notificationRepository.save(notification);
   }
 
   async notifyWorkflow(workflowId: number, message: string) {
-    this.logger.debug(`Notifying workflow: ${workflowId} with message: ${message}`);
-    
+    this.logger.debug(
+      `Notifying workflow: ${workflowId} with message: ${message}`,
+    );
+
     return;
   }
 
@@ -36,7 +45,10 @@ export class NotificationsService {
   }
 
   async update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    const notification = await this.notificationRepository.preload({ id, ...updateNotificationDto });
+    const notification = await this.notificationRepository.preload({
+      id,
+      ...updateNotificationDto,
+    });
     if (!notification) {
       throw new Error(`Notification with id ${id} not found`);
     }

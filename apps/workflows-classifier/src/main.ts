@@ -15,7 +15,7 @@ async function bootstrap() {
         queue: 'workflows-classifier-service',
       },
     },
-    { inheritAppConfig: true }
+    { inheritAppConfig: true },
   );
 
   await app.startAllMicroservices();

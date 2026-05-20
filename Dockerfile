@@ -17,4 +17,4 @@ COPY apps ./apps
 ARG SERVICE_NAME
 ENV SERVICE_NAME=${SERVICE_NAME}
 
-CMD npm run start:dev -- --project $SERVICE_NAME
+CMD npm run start:dev -- $SERVICE_NAME

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassifiersService } from './classifiers.service';
 import { CreateClassifierDto } from './dto/create-classifier.dto';
@@ -34,7 +42,10 @@ export class ClassifiersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClassifierDto: UpdateClassifierDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateClassifierDto: UpdateClassifierDto,
+  ) {
     return this.classifiersService.update(+id, updateClassifierDto);
   }
 

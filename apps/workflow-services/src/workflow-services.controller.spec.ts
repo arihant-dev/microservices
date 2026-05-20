@@ -11,7 +11,9 @@ describe('WorkflowServicesController', () => {
       providers: [WorkflowServicesService],
     }).compile();
 
-    workflowServicesController = app.get<WorkflowServicesController>(WorkflowServicesController);
+    workflowServicesController = app.get<WorkflowServicesController>(
+      WorkflowServicesController,
+    );
   });
 
   describe('root', () => {

@@ -15,7 +15,7 @@ async function bootstrap() {
         queue: 'workflows-notification-service',
       },
     },
-    { inheritAppConfig: true }
+    { inheritAppConfig: true },
   );
 
   await app.startAllMicroservices();

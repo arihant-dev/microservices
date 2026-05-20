@@ -9,24 +9,31 @@ import { Classifier } from './entities/classifier.entity';
 export class ClassifiersService {
   private readonly logger = new Logger(ClassifiersService.name);
 
-  constructor(@InjectRepository(Classifier) private classifierRepository: Repository<Classifier>) {}
+  constructor(
+    @InjectRepository(Classifier)
+    private classifierRepository: Repository<Classifier>,
+  ) {}
 
   async create(createClassifierDto: CreateClassifierDto) {
     const classifier = this.classifierRepository.create(createClassifierDto);
-    this.logger.debug(`Creating classifier for workflowId: ${createClassifierDto.workflowId} with classification: ${createClassifierDto.classification}`);
+    this.logger.debug(
+      `Creating classifier for workflowId: ${createClassifierDto.workflowId} with classification: ${createClassifierDto.classification}`,
+    );
     return this.classifierRepository.save(classifier);
   }
 
-  async classify(workflowId: number): Promise<{ classification: 'primary' | 'secondary' }> {
+  async classify(
+    workflowId: number,
+  ): Promise<{ classification: 'primary' | 'secondary' }> {
     this.logger.debug(`Classifying workflow: ${workflowId}`);
     // Simple classification logic - in production, this would be more complex
     const classification = workflowId % 2 === 0 ? 'primary' : 'secondary';
-    
+
     const classifier = this.classifierRepository.create({
       workflowId,
       classification,
     });
-    
+
     await this.classifierRepository.save(classifier);
     return { classification };
   }
@@ -44,7 +51,10 @@ export class ClassifiersService {
   }
 
   async update(id: number, updateClassifierDto: UpdateClassifierDto) {
-    const classifier = await this.classifierRepository.preload({ id, ...updateClassifierDto });
+    const classifier = await this.classifierRepository.preload({
+      id,
+      ...updateClassifierDto,
+    });
     if (!classifier) {
       throw new Error(`Classifier with id ${id} not found`);
     }
